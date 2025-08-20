@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Game</title>
+      <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+  <style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+ 
+body {
+  align-items: center;
+  background: var(--background);
+  color: var(--text);
+  --background: #0F172A;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    max-height: 900px;
+    height: 100%;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.control-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.next-btn{
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.game-area {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    gap: 20px; /* Add space between the image and puzzle board */
+}
+
+.complete-image {
+    width: 300px;
+    height: 300px;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.complete-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.puzzle-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 300px;
+    height: 300px;
+    border: 2px solid #ccc;
+}
+
+.puzzle-piece {
+    width: 100px;
+    height: 100px;
+    background-size: 300px 300px;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+  </style>
+</head>
+<body>
+
+   
+  <!-- Animated Background -->
+  <div class="animated-background">
+    <div class="gradient-sphere"></div>
+    <div class="gradient-sphere"></div>
+    <div class="gradient-sphere"></div>
+  </div>
+  <div class="loader">
+    <script>
+      
+// Add parallax effect to background spheres
+window.addEventListener('mousemove', (e) => {
+  const spheres = document.querySelectorAll('.gradient-sphere');
+  const mouseX = e.clientX / window.innerWidth;
+  const mouseY = e.clientY / window.innerHeight;
+
+  spheres.forEach((sphere, index) => {
+    const speed = (index + 1) * 20;
+    sphere.style.transform = `translate(${mouseX * speed}px, ${mouseY * speed}px)`;
+  });
+});
+
+    </script>
+  <div class="container">
+    <div class="header">
+      <div class="controls">
+        <button id="shuffleBtn" class="control-btn">Shuffle</button>
+      </div>
+      <div class="score">Moves: <span id="moves">0</span></div>
+    </div>
+
+    <div class="game-area">
+      <div class="puzzle-container">
+        <div id="complete-image" class="complete-image">
+          <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7" alt="Complete Puzzle">
+        </div><br>
+        <div id="puzzle-board" class="puzzle-board"></div>
+      </div>
+    </div>
+
+    <div id="success-message" class="success-message hidden">
+      <div class="message-content">
+    
+        <p>Completed the puzzle <span id="finalMoves">0</span> moves!</p>
+        <button id="nextBtn" class="next-btn">Next Puzzle</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const puzzles = [
+    {
+      imageUrl: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7',
+      name: 'Puzzle 1'
+    },
+    {
+      imageUrl: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0',
+      name: 'Puzzle 2'
+    }
+  ];
+  
+  let moves = 0;
+  let pieces = [];
+  let currentPuzzleIndex = 0;
+  const boardSize = 3; // 3x3 grid
+  const puzzleBoard = document.getElementById('puzzle-board');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const movesDisplay = document.getElementById('moves');
+  const successMessage = document.getElementById('success-message');
+  const finalMoves = document.getElementById('finalMoves');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  function initializePuzzle() {
+    const puzzle = puzzles[currentPuzzleIndex];
+    document.getElementById('complete-image').querySelector('img').src = puzzle.imageUrl;
+  
+    puzzleBoard.innerHTML = '';
+    moves = 0;
+    movesDisplay.textContent = moves;
+    pieces = [];
+  
+    for (let i = 0; i < boardSize * boardSize; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'puzzle-piece';
+  
+      if (i !== boardSize * boardSize - 1) {
+        const x = (i % boardSize) * 100;
+        const y = Math.floor(i / boardSize) * 100;
+  
+        piece.style.backgroundImage = `url(${puzzle.imageUrl})`;
+        piece.style.backgroundPosition = `-${x}px -${y}px`;
+        piece.dataset.correctIndex = i;
+  
+        piece.addEventListener('click', () => movePiece(piece));
+      }
+  
+      pieces.push(piece);
+      puzzleBoard.appendChild(piece);
+    }
+  
+    shufflePieces();
+  }
+  
+  function shufflePieces() {
+    pieces.sort(() => Math.random() - 0.5);
+    pieces.forEach(piece => puzzleBoard.appendChild(piece));
+  }
+  
+  function movePiece(piece) {
+    const emptyPieceIndex = pieces.findIndex(p => p.dataset.correctIndex === undefined);
+    const pieceIndex = pieces.indexOf(piece);
+  
+    // Calculate row and column of the clicked piece and the empty piece
+    const pieceRow = Math.floor(pieceIndex / boardSize);
+    const pieceCol = pieceIndex % boardSize;
+    const emptyRow = Math.floor(emptyPieceIndex / boardSize);
+    const emptyCol = emptyPieceIndex % boardSize;
+  
+    // Allow movement only if the piece is adjacent to the empty piece
+    if ((Math.abs(pieceRow - emptyRow) === 1 && pieceCol === emptyCol) || 
+        (Math.abs(pieceCol - emptyCol) === 1 && pieceRow === emptyRow)) {
+      
+      // Swap piece with the empty spot
+      [pieces[emptyPieceIndex], pieces[pieceIndex]] = [pieces[pieceIndex], pieces[emptyPieceIndex]];
+      puzzleBoard.innerHTML = '';
+      pieces.forEach(p => puzzleBoard.appendChild(p));
+  
+      moves++;
+      movesDisplay.textContent = moves;
+  
+      checkCompletion();
+    }
+  }
+  
+  function checkCompletion() {
+    if (pieces.every((piece, index) => piece.dataset.correctIndex == index)) {
+      finalMoves.textContent = moves;
+      successMessage.classList.add('visible');
+    }
+  }
+  
+  function goToNextPuzzle() {
+    currentPuzzleIndex = (currentPuzzleIndex + 1) % puzzles.length;
+    successMessage.classList.remove('visible');
+    initializePuzzle();
+  }
+  
+  shuffleBtn.addEventListener('click', shufflePieces);
+  nextBtn.addEventListener('click', goToNextPuzzle);
+  window.addEventListener('load', initializePuzzle);
+  
+  </script>
+</body>
+</html>

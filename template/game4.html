@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz Game</title>
+        <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cartoon-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .cartoon {
+            width: 100px;
+            height: 100px;
+            background-image: url('https://www.clipartmax.com/png/middle/213-2138817_cartoon-characters-png.png'); /* Replace with a working URL */
+            background-size: cover;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            animation: moveCartoon 10s linear infinite;
+        }
+
+        @keyframes moveCartoon {
+            0% { transform: translateX(-100px) translateY(0); }
+            25% { transform: translateX(25vw) translateY(-200px); }
+            50% { transform: translateX(50vw) translateY(0); }
+            75% { transform: translateX(75vw) translateY(-200px); }
+            100% { transform: translateX(100vw) translateY(0); }
+        }
+
+        /* Flying Birds Animation */
+        .bird {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://www.clipartmax.com/png/middle/213-2138817_cartoon-characters-png.png'); /* Replace with a bird image URL */
+            background-size: cover;
+            position: absolute;
+            top: 10%;
+            left: -100px;
+            animation: flyBirds 15s linear infinite;
+        }
+
+        .bird:nth-child(2) {
+            top: 30%;
+            animation-duration: 20s;
+        }
+
+        .bird:nth-child(3) {
+            top: 50%;
+            animation-duration: 25s;
+        }
+
+        @keyframes flyBirds {
+            0% { transform: translateX(-100px) translateY(0); }
+            100% { transform: translateX(100vw) translateY(-50px); }
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 28px;
+            margin-bottom: 25px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .answer-input {
+            width: 90%;
+            padding: 12px;
+            font-size: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .submit-btn, .back-btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: white;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 5px;
+        }
+
+        .submit-btn:hover, .back-btn:hover {
+            background: #0056b3;
+        }
+
+        .back-btn {
+            background: #6c757d;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .result {
+            font-size: 22px;
+            margin-top: 25px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .score {
+            font-size: 22px;
+            margin-top: 25px;
+            color: #28a745;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+ <!-- Loader Container -->
+ <iframe id="loader-frame" src="/loader" style="border: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; z-index: 9999;"></iframe>
+  
+ <script>
+   // Wait until the loader is visible for a few seconds, then show the main content
+   window.onload = function() {
+       setTimeout(() => {
+           document.getElementById("loader-frame").style.display = "none"; // Hide loader
+           document.getElementById("content").style.display = "block"; // Show website content
+       }, 3000); // Adjust time as needed (3 seconds)
+   };
+</script>
+
+    <div class="cartoon-background">
+        <div class="cartoon"></div> <!-- Cartoon element -->
+        <div class="bird"></div> <!-- Bird 1 -->
+        <div class="bird"></div> <!-- Bird 2 -->
+        <div class="bird"></div> <!-- Bird 3 -->
+    </div>
+    <div class="game-container">
+        <h1>Math Quiz Game</h1>
+        <div id="question" class="question"></div>
+        <input type="text" id="answer" class="answer-input" placeholder="Your answer...">
+        <button id="submit" class="submit-btn">Submit</button>
+        <button id="back" class="back-btn" onclick="goToPage('/')">Back</button>
+        <div id="result" class="result"></div>
+        <div id="score" class="score">Score: 0</div>
+    </div>
+    <script>
+        const questionElement = document.getElementById('question');
+        const answerElement = document.getElementById('answer');
+        const submitButton = document.getElementById('submit');
+        const resultElement = document.getElementById('result');
+        const scoreElement = document.getElementById('score');
+        const backButton = document.getElementById('back');
+
+        let score = 0;
+        let num1, num2, operator;
+
+        // Array of possible operators
+        const operators = ['+', '-', '*', '/'];
+
+        // Function to generate a random question
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 101); // Random number between 0 and 100
+            num2 = Math.floor(Math.random() * 101); // Random number between 0 and 100
+            operator = operators[Math.floor(Math.random() * operators.length)]; // Random operator
+
+            // Ensure division problems result in whole numbers
+            if (operator === '/') {
+                while (num2 === 0 || num1 % num2 !== 0) {
+                    num1 = Math.floor(Math.random() * 101);
+                    num2 = Math.floor(Math.random() * 101);
+                }
+            }
+
+            questionElement.textContent = `What is ${num1} ${operator} ${num2}?`;
+        }
+
+        // Function to check the user's answer
+        function checkAnswer() {
+            const userAnswer = answerElement.value.trim();
+
+            if (userAnswer === '') {
+                alert('Please enter an answer before submitting.'); // Popup message
+                return; // Stop further execution
+            }
+
+            const correctAnswer = calculateCorrectAnswer(num1, num2, operator);
+
+            if (parseFloat(userAnswer) === correctAnswer) {
+                resultElement.textContent = 'Correct! 🎉';
+                resultElement.style.color = '#28a745';
+                score++;
+            } else {
+                resultElement.textContent = `Wrong! 😢 The correct answer was ${correctAnswer}.`;
+                resultElement.style.color = '#dc3545';
+            }
+
+            scoreElement.textContent = `Score: ${score}`;
+            answerElement.value = '';
+            generateQuestion();
+        }
+
+        // Function to calculate the correct answer based on the operator
+        function calculateCorrectAnswer(num1, num2, operator) {
+            switch (operator) {
+                case '+':
+                    return num1 + num2;
+                case '-':
+                    return num1 - num2;
+                case '*':
+                    return num1 * num2;
+                case '/':
+                    return num1 / num2;
+                default:
+                    return null;
+            }
+        }
+
+        // Event listener for the submit button
+        submitButton.addEventListener('click', checkAnswer);
+
+           //back button
+function goToPage(page) {
+    window.location.href = page;
+  }
+
+        // Generate the first question when the page loads
+        generateQuestion();
+    </script>
+</body>
+</html>

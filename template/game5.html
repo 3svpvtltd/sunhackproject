@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Adventure</title>
+        <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Cloud Animation */
+        .cloud {
+            position: absolute;
+            width: 100px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            animation: float-cloud linear infinite;
+            opacity: 0.8;
+            z-index: 0;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud::after {
+            width: 30px;
+            height: 30px;
+            top: -10px;
+            right: 15px;
+        }
+
+        .cloud:nth-child(1) {
+            top: 20%;
+            animation-duration: 30s;
+            animation-delay: 0s;
+            transform: scale(1.2);
+        }
+
+        .cloud:nth-child(2) {
+            top: 40%;
+            animation-duration: 25s;
+            animation-delay: -5s;
+            transform: scale(0.8);
+        }
+
+        .cloud:nth-child(3) {
+            top: 60%;
+            animation-duration: 35s;
+            animation-delay: -10s;
+            transform: scale(1.5);
+        }
+
+        .cloud:nth-child(4) {
+            top: 80%;
+            animation-duration: 28s;
+            animation-delay: -2s;
+            transform: scale(1);
+        }
+
+        @keyframes float-cloud {
+            from {
+                left: -150px;
+            }
+            to {
+                left: calc(100% + 150px);
+            }
+        }
+
+        .container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 28rem;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .screen {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        .logo {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .level-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .level-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .level-btn:hover:not(.active) {
+            background: #e5e7eb;
+        }
+
+        .level-desc {
+            font-size: 0.875rem;
+            opacity: 0.75;
+            margin-top: 0.25rem;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .primary-btn:hover {
+            background: #2563eb;
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .score {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .question-container {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        #question {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #answer-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.25rem;
+            text-align: center;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #answer-input:focus {
+            border-color: #3b82f6;
+        }
+
+        #answer-input.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        #answer-input.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .trophy {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: scale 0.5s ease;
+        }
+
+        @keyframes scale {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .final-score {
+            font-size: 1.25rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 1rem;
+            background: #e5e7eb;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0;
+            transition: width 1s ease;
+        }
+
+        .arrow, .refresh {
+            font-size: 1.25rem;
+        }
+
+        #correct-answer {
+            font-size: 1rem;
+            color: #10b981;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        #correct-answer.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loader Container -->
+    <iframe id="loader-frame" src="/loader" style="border: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; z-index: 9999;"></iframe>
+  
+    <script>
+        // Wait until the loader is visible for a few seconds, then show the main content
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById("loader-frame").style.display = "none"; // Hide loader
+                document.getElementById("content").style.display = "block"; // Show website content
+            }, 3000); // Adjust time as needed (3 seconds)
+        };
+    </script>
+
+    <!-- Cloud Elements -->
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+
+    <div class="container">
+        <div id="start-screen" class="screen">
+            <div class="logo">📐</div>
+            <h1>Math Adventure</h1>
+            <div class="level-buttons">
+                <button class="level-btn" data-level="beginner">
+                    Beginner
+                    <div class="level-desc">Simple operations & basic parentheses</div>
+                </button>
+                <button class="level-btn" data-level="intermediate">
+                    Intermediate
+                    <div class="level-desc">Mixed operations & parentheses</div>
+                </button>
+                <button class="level-btn" data-level="advanced">
+                    Advanced
+                    <div class="level-desc">Complex expressions & BODMAS rules</div>
+                </button>
+            </div>
+            <button id="start-btn" class="primary-btn">
+                Start Game
+                <span class="arrow">→</span>
+            </button>
+        </div>
+
+        <div id="game-screen" class="screen hidden">
+            <div class="header">
+                <div class="score">
+                    ⭐ Score: <span id="score">0</span>
+                </div>
+                <div class="question-count">
+                    Question <span id="current-question">1</span>/5
+                </div>
+            </div>
+            
+            <div class="question-container">
+                <h2 id="question">What is 5 + 3?</h2>
+                <input type="number" id="answer-input" placeholder="Enter your answer">
+                <!-- Add this line to display the correct answer -->
+                <p id="correct-answer" class="hidden"></p>
+            </div>
+
+            <button id="submit-btn" class="primary-btn">Submit Answer</button>
+        </div>
+
+        <div id="result-screen" class="screen hidden">
+            <div class="trophy">🏆</div>
+            <h2>Game Complete!</h2>
+            <p class="final-score">You scored <span id="final-score">0</span> out of 5!</p>
+            <div class="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <button id="play-again-btn" class="primary-btn">
+                Play Again
+                <span class="refresh">🔄</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class MathGame {
+            constructor() {
+                this.currentLevel = 'beginner';
+                this.questions = [];
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.initializeElements();
+                this.addEventListeners();
+            }
+
+            initializeElements() {
+                // Screens
+                this.startScreen = document.getElementById('start-screen');
+                this.gameScreen = document.getElementById('game-screen');
+                this.resultScreen = document.getElementById('result-screen');
+
+                // Buttons
+                this.levelButtons = document.querySelectorAll('.level-btn');
+                this.startButton = document.getElementById('start-btn');
+                this.submitButton = document.getElementById('submit-btn');
+                this.playAgainButton = document.getElementById('play-again-btn');
+
+                // Game elements
+                this.questionElement = document.getElementById('question');
+                this.answerInput = document.getElementById('answer-input');
+                this.scoreElement = document.getElementById('score');
+                this.currentQuestionElement = document.getElementById('current-question');
+                this.finalScoreElement = document.getElementById('final-score');
+                this.progressFill = document.getElementById('progress-fill');
+                this.correctAnswerElement = document.getElementById('correct-answer');
+            }
+
+            addEventListeners() {
+                this.levelButtons.forEach(button => {
+                    button.addEventListener('click', () => this.handleLevelSelect(button));
+                });
+
+                this.startButton.addEventListener('click', () => this.startGame());
+                this.submitButton.addEventListener('click', () => this.handleSubmit());
+                this.playAgainButton.addEventListener('click', () => this.showStartScreen());
+
+                this.answerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.handleSubmit();
+                });
+            }
+
+            handleLevelSelect(button) {
+                this.levelButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                this.currentLevel = button.dataset.level;
+            }
+
+            generateRandomNumber(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            generateComplexExpression() {
+                let expression = '';
+                let answer = 0;
+
+                switch (this.currentLevel) {
+                    case 'beginner':
+                        const num1 = this.generateRandomNumber(1, 10);
+                        const num2 = this.generateRandomNumber(1, 10);
+                        const num3 = this.generateRandomNumber(1, 10);
+                        expression = `${num1} + (${num2} + ${num3})`;
+                        answer = num1 + (num2 + num3);
+                        break;
+
+                    case 'intermediate':
+                        const a = this.generateRandomNumber(2, 15);
+                        const b = this.generateRandomNumber(2, 10);
+                        const c = this.generateRandomNumber(2, 5);
+                        if (Math.random() < 0.5) {
+                            expression = `${a} + (${b} × ${c})`;
+                            answer = a + (b * c);
+                        } else {
+                            expression = `(${a} + ${b}) × ${c}`;
+                            answer = (a + b) * c;
+                        }
+                        break;
+
+                    case 'advanced':
+                        const x = this.generateRandomNumber(2, 20);
+                        const y = this.generateRandomNumber(2, 15);
+                        const z = this.generateRandomNumber(2, 10);
+                        const w = this.generateRandomNumber(2, 5);
+                        
+                        const operations = [
+                            {
+                                expr: `${x} + (${y} + ${z}) × ${w}`,
+                                val: x + (y + z) * w
+                            },
+                            {
+                                expr: `(${x} × ${y}) + (${z} × ${w})`,
+                                val: (x * y) + (z * w)
+                            },
+                            {
+                                expr: `${x} × (${y} + ${z}) + ${w}`,
+                                val: x * (y + z) + w
+                            }
+                        ];
+                        
+                        const selected = operations[this.generateRandomNumber(0, operations.length - 1)];
+                        expression = selected.expr;
+                        answer = selected.val;
+                        break;
+                }
+
+                return { expression, answer };
+            }
+
+            generateQuestion() {
+                const useComplex = Math.random() < (
+                    this.currentLevel === 'advanced' ? 0.7 : 
+                    this.currentLevel === 'intermediate' ? 0.4 : 
+                    0.2
+                );
+
+                if (useComplex) {
+                    const { expression, answer } = this.generateComplexExpression();
+                    return {
+                        question: `What is ${expression}?`,
+                        answer
+                    };
+                }
+
+                let num1, num2, operation;
+
+                switch (this.currentLevel) {
+                    case 'beginner':
+                        num1 = this.generateRandomNumber(1, 10);
+                        num2 = this.generateRandomNumber(1, 10);
+                        operation = Math.random() < 0.5 ? '+' : '-';
+                        break;
+                    
+                    case 'intermediate':
+                        num1 = this.generateRandomNumber(10, 50);
+                        num2 = this.generateRandomNumber(10, 50);
+                        operation = Math.random() < 0.7 ? 
+                            (Math.random() < 0.5 ? '+' : '-') : 
+                            '×';
+                        if (operation === '×') {
+                            num1 = this.generateRandomNumber(2, 12);
+                            num2 = this.generateRandomNumber(2, 12);
+                        }
+                        break;
+                    
+                    case 'advanced':
+                        const operations = ['+', '-', '×', '÷'];
+                        operation = operations[Math.floor(Math.random() * operations.length)];
+                        
+                        if (operation === '÷') {
+                            num2 = this.generateRandomNumber(2, 12);
+                            num1 = num2 * this.generateRandomNumber(2, 12);
+                        } else if (operation === '×') {
+                            num1 = this.generateRandomNumber(2, 20);
+                            num2 = this.generateRandomNumber(2, 20);
+                        } else {
+                            num1 = this.generateRandomNumber(20, 100);
+                            num2 = this.generateRandomNumber(20, 100);
+                        }
+                        break;
+                }
+
+                if (operation === '-' && num2 > num1) {
+                    [num1, num2] = [num2, num1];
+                }
+
+                let answer;
+                switch (operation) {
+                    case '+': answer = num1 + num2; break;
+                    case '-': answer = num1 - num2; break;
+                    case '×': answer = num1 * num2; break;
+                    case '÷': answer = num1 / num2; break;
+                }
+
+                return {
+                    question: `What is ${num1} ${operation} ${num2}?`,
+                    answer
+                };
+            }
+
+            generateQuestions() {
+                const allQuestions = Array.from({ length: 50 }, () => this.generateQuestion());
+                return this.shuffleArray(allQuestions).slice(0, 5);
+            }
+
+            shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+
+            startGame() {
+                this.questions = this.generateQuestions();
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.updateUI();
+                this.showGameScreen();
+            }
+
+            handleSubmit() {
+                if (!this.answerInput.value) return;
+
+                const currentQuestion = this.questions[this.currentQuestionIndex];
+                const isCorrect = parseInt(this.answerInput.value) === currentQuestion.answer;
+
+                this.answerInput.classList.add(isCorrect ? 'correct' : 'incorrect');
+                
+                if (isCorrect) {
+                    this.score++;
+                } else {
+                    // Display the correct answer
+                    this.correctAnswerElement.textContent = `Correct Answer: ${currentQuestion.answer}`;
+                    this.correctAnswerElement.classList.remove('hidden');
+                    this.correctAnswerElement.classList.add('visible');
+                }
+
+                setTimeout(() => {
+                    this.answerInput.classList.remove('correct', 'incorrect');
+                    this.answerInput.value = '';
+                    
+                    if (this.currentQuestionIndex < 4) {
+                        this.currentQuestionIndex++;
+                        this.updateUI();
+                        // Hide the correct answer for the next question
+                        this.correctAnswerElement.classList.add('hidden');
+                        this.correctAnswerElement.classList.remove('visible');
+                    } else {
+                        this.showResultScreen();
+                    }
+                }, 1000);
+            }
+
+            updateUI() {
+                const currentQuestion = this.questions[this.currentQuestionIndex];
+                this.questionElement.textContent = currentQuestion.question;
+                this.scoreElement.textContent = this.score;
+                this.currentQuestionElement.textContent = this.currentQuestionIndex + 1;
+                this.answerInput.focus();
+            }
+
+            showStartScreen() {
+                this.startScreen.classList.remove('hidden');
+                this.gameScreen.classList.add('hidden');
+                this.resultScreen.classList.add('hidden');
+            }
+
+            showGameScreen() {
+                this.startScreen.classList.add('hidden');
+                this.gameScreen.classList.remove('hidden');
+                this.resultScreen.classList.add('hidden');
+            }
+
+            showResultScreen() {
+                this.gameScreen.classList.add('hidden');
+                this.resultScreen.classList.remove('hidden');
+                this.finalScoreElement.textContent = this.score;
+                this.progressFill.style.width = `${(this.score / 5) * 100}%`;
+            }
+        }
+
+        // Initialize the game
+        new MathGame();
+    </script>
+</body>
+</html>

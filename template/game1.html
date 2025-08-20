@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasure Quest</title>
+      <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+  <style>
+    body {
+      font-family: 'Comic Neue', cursive;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      /* Remove overflow: hidden; */
+    }
+    
+    .game-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Rest of the CSS remains the same */
+    
+    h1 {
+      font-family: 'Chewy', cursive;
+      color: #ff5722;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    h2 {
+      font-family: 'Chewy', cursive;
+      color: #4caf50;
+      font-size: 2rem;
+    }
+    
+    .puzzle {
+      margin: 20px 0;
+      padding: 15px;
+      border: 2px solid #ff5722;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    input {
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #ff5722;
+      border-radius: 5px;
+      font-family: 'Comic Neue', cursive;
+      font-size: 1rem;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background-color: #ff5722;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Comic Neue', cursive;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: #e64a19;
+    }
+    
+    #bomb-blast {
+      width: 100px;
+      height: 100px;
+      background-image: url('https://i.imgur.com/8nLf3yE.png'); /* Replace with a bomb image */
+      background-size: cover;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: blast 1s forwards;
+      display: none;
+    }
+    
+    @keyframes blast {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+      }
+    }
+    
+    #paper-cuts-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    
+    .paper-cut {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-image: url('https://i.imgur.com/xyz1234.png'); /* Replace with a paper cut image */
+      background-size: cover;
+      animation: fall linear infinite;
+    }
+    
+    @keyframes fall {
+      0% {
+        transform: translateY(-100%);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+    
+    #stars-container {
+      margin-top: 20px;
+    }
+    
+    .star {
+      font-size: 2rem;
+      color: gold;
+      display: inline-block;
+      animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .background-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    .cloud {
+      position: absolute;
+      width: 100px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      animation: moveCloud 10s linear infinite;
+    }
+    
+    .cloud:nth-child(1) {
+      top: 20%;
+      left: -100px;
+      animation-duration: 15s;
+    }
+    
+    .cloud:nth-child(2) {
+      top: 50%;
+      left: -100px;
+      animation-duration: 20s;
+    }
+    
+    .cloud:nth-child(3) {
+      top: 80%;
+      left: -100px;
+      animation-duration: 25s;
+    }
+    
+    @keyframes moveCloud {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100vw);
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Loader Container -->
+  <iframe id="loader-frame" src="/loader" style="border: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; z-index: 9999;"></iframe>
+  
+  <script>
+    // Wait until the loader is visible for a few seconds, then show the main content
+    window.onload = function() {
+        setTimeout(() => {
+            document.getElementById("loader-frame").style.display = "none"; // Hide loader
+            document.getElementById("content").style.display = "block"; // Show website content
+        }, 3000); // Adjust time as needed (3 seconds)
+    };
+</script>
+
+
+  <div class="game-container">
+    <h1>Treasure Quest 🏴‍☠️</h1>
+    <div id="level-1" class="level">
+      <h2>Level 1: Solve the Puzzles!</h2>
+      <div class="puzzle">
+        <h3>Math Puzzle</h3>
+        <p>What is 5 + 7?</p>
+        <input type="number" id="math-answer" placeholder="Your answer">
+        <button onclick="checkMath()">Submit</button>
+        <p id="math-feedback"></p>
+      </div>
+      <div class="puzzle">
+        <h3>Pattern Puzzle</h3>
+        <p>What comes next? Red, Blue, Green, Red, Blue, ___</p>
+        <input type="text" id="pattern-answer" placeholder="Your answer">
+        <button onclick="checkPattern()">Submit</button>
+        <p id="pattern-feedback"></p>
+      </div>
+      <div class="puzzle">
+        <h3>Word Puzzle</h3>
+        <p>Unscramble the letters: TAC</p>
+        <input type="text" id="word-answer" placeholder="Your answer">
+        <button onclick="checkWord()">Submit</button>
+        <p id="word-feedback"></p>
+      </div>
+      <div class="puzzle">
+        <h3>Logic Puzzle</h3>
+        <p>If 2 cats catch 2 mice in 2 minutes, how many cats are needed to catch 8 mice in 8 minutes?</p>
+        <input type="number" id="logic-answer" placeholder="Your answer">
+        <button onclick="checkLogic()">Submit</button>
+        <p id="logic-feedback"></p>
+      </div>
+      <div class="puzzle">
+        <h3>Riddle Puzzle</h3>
+        <p>I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?</p>
+        <input type="text" id="riddle-answer" placeholder="Your answer">
+        <button onclick="checkRiddle()">Submit</button>
+        <p id="riddle-feedback"></p>
+      </div>
+    </div>
+    <div id="level-complete" class="hidden">
+      <h2>Congratulations! You found the treasure! 🎉</h2>
+      <div id="bomb-blast" class="hidden"></div>
+      <div id="paper-cuts-rain" class="hidden"></div>
+      <div id="stars-container" class="hidden">
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+        <span class="star">⭐</span>
+      </div>
+      <button onclick="resetGame()">Play Again</button>
+    </div>
+  </div>
+  <div class="background-animation">
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+  </div>
+ 
+  <script>
+    const questions = [
+  // Math Puzzles
+  { type: "math", question: "What is 8 + 7?", answer: "15" },
+  { type: "math", question: "What is 12 - 5?", answer: "7" },
+  { type: "math", question: "What is 6 × 4?", answer: "24" },
+  { type: "math", question: "What is 20 ÷ 5?", answer: "4" },
+  { type: "math", question: "What is 9 + 11?", answer: "20" },
+  { type: "math", question: "What is 15 - 9?", answer: "6" },
+  { type: "math", question: "What is 7 × 3?", answer: "21" },
+  { type: "math", question: "What is 18 ÷ 2?", answer: "9" },
+  { type: "math", question: "What is 25 - 13?", answer: "12" },
+  { type: "math", question: "What is 10 × 5?", answer: "50" },
+
+  // Pattern Puzzles
+  { type: "pattern", question: "What comes next? 2, 4, 6, 8, ___", answer: "10" },
+  { type: "pattern", question: "What comes next? A, C, E, G, ___", answer: "I" },
+  { type: "pattern", question: "What comes next? Red, Blue, Green, Red, Blue, ___", answer: "Green" },
+  { type: "pattern", question: "What comes next? 5, 10, 15, 20, ___", answer: "25" },
+  { type: "pattern", question: "What comes next? Circle, Square, Triangle, Circle, Square, ___", answer: "Triangle" },
+  { type: "pattern", question: "What comes next? 1, 3, 5, 7, ___", answer: "9" },
+  { type: "pattern", question: "What comes next? Cat, Dog, Fish, Cat, Dog, ___", answer: "Fish" },
+  { type: "pattern", question: "What comes next? 10, 20, 30, 40, ___", answer: "50" },
+  { type: "pattern", question: "What comes next? Sun, Moon, Stars, Sun, Moon, ___", answer: "Stars" },
+  { type: "pattern", question: "What comes next? 100, 90, 80, 70, ___", answer: "60" },
+
+  // Word Puzzles
+  { type: "word", question: "Unscramble the letters: TAC", answer: "cat" },
+  { type: "word", question: "Unscramble the letters: DOG", answer: "dog" },
+  { type: "word", question: "Unscramble the letters: RAT", answer: "rat" },
+  { type: "word", question: "Unscramble the letters: PAN", answer: "pan" },
+  { type: "word", question: "Unscramble the letters: BATS", answer: "bats" },
+  { type: "word", question: "Unscramble the letters: LION", answer: "lion" },
+  { type: "word", question: "Unscramble the letters: BEAR", answer: "bear" },
+  { type: "word", question: "Unscramble the letters: FISH", answer: "fish" },
+  { type: "word", question: "Unscramble the letters: BIRD", answer: "bird" },
+  { type: "word", question: "Unscramble the letters: DUCK", answer: "duck" },
+
+  // Logic Puzzles
+  { type: "logic", question: "If 2 cats catch 2 mice in 2 minutes, how many cats are needed to catch 8 mice in 8 minutes?", answer: "2" },
+  { type: "logic", question: "If a train travels 60 miles in 1 hour, how far will it travel in 3 hours?", answer: "180" },
+  { type: "logic", question: "If 3 pencils cost $6, how much do 5 pencils cost?", answer: "10" },
+  { type: "logic", question: "If a clock shows 3:15, what is the angle between the hour and minute hands?", answer: "7.5" },
+  { type: "logic", question: "If 5 machines make 5 widgets in 5 minutes, how long will it take 100 machines to make 100 widgets?", answer: "5" },
+  { type: "logic", question: "If a book has 300 pages and you read 30 pages a day, how many days will it take to finish the book?", answer: "10" },
+  { type: "logic", question: "If 4 people can paint 4 walls in 4 hours, how many people are needed to paint 8 walls in 8 hours?", answer: "4" },
+  { type: "logic", question: "If a pizza is cut into 8 slices and you eat 3 slices, how many slices are left?", answer: "5" },
+  { type: "logic", question: "If a car travels 50 miles per hour, how long will it take to travel 200 miles?", answer: "4" },
+  { type: "logic", question: "If a rectangle has a length of 10 and a width of 5, what is its area?", answer: "50" },
+
+  // Riddles
+  { type: "riddle", question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", answer: "echo" },
+  { type: "riddle", question: "The more you take, the more you leave behind. What am I?", answer: "footsteps" },
+  { type: "riddle", question: "What has keys but can’t open locks?", answer: "keyboard" },
+  { type: "riddle", question: "What has to be broken before you can use it?", answer: "egg" },
+  { type: "riddle", question: "What has a heart that doesn’t beat?", answer: "artichoke" },
+  { type: "riddle", question: "What can travel around the world while staying in the same spot?", answer: "stamp" },
+  { type: "riddle", question: "What has a head, a tail, but no body?", answer: "coin" },
+  { type: "riddle", question: "What has hands but can’t clap?", answer: "clock" },
+  { type: "riddle", question: "What has an eye but can’t see?", answer: "needle" },
+  { type: "riddle", question: "What gets wetter as it dries?", answer: "towel" }
+];
+
+let currentQuestions = [];
+let puzzlesSolved = 0;
+let correctAnswers = 0;
+
+// Function to randomly select 10 questions
+function selectQuestions() {
+  currentQuestions = [];
+  const shuffledQuestions = questions.sort(() => 0.5 - Math.random()); // Shuffle questions
+  currentQuestions = shuffledQuestions.slice(0, 10); // Select 10 random questions
+  displayQuestions();
+}
+
+// Function to display selected questions
+function displayQuestions() {
+  const level1 = document.getElementById("level-1");
+  level1.innerHTML = `<h2>Level 1: Solve the Puzzles!</h2>`;
+  currentQuestions.forEach((q, index) => {
+    level1.innerHTML += `
+      <div class="puzzle">
+        <h3>${q.type.charAt(0).toUpperCase() + q.type.slice(1)} Puzzle</h3>
+        <p>${q.question}</p>
+        <input type="text" id="answer-${index}" placeholder="Your answer">
+        <button onclick="checkAnswer(${index})">Submit</button>
+        <p id="feedback-${index}"></p>
+      </div>
+    `;
+  });
+}
+
+// Function to check answers
+function checkAnswer(index) {
+  const userAnswer = document.getElementById(`answer-${index}`).value.trim().toLowerCase();
+  const feedback = document.getElementById(`feedback-${index}`);
+  if (userAnswer === currentQuestions[index].answer.toLowerCase()) {
+    feedback.textContent = "Correct! 🎉";
+    feedback.style.color = "green";
+    correctAnswers++;
+    puzzlesSolved++;
+  } else {
+    feedback.textContent = `Try again! ❌ (Answer: ${currentQuestions[index].answer})`;
+    feedback.style.color = "red";
+  }
+  checkLevelCompletion();
+}
+
+// Function to check if all puzzles are solved
+function checkLevelCompletion() {
+  if (puzzlesSolved === 10) {
+    document.getElementById("level-1").classList.add("hidden");
+    document.getElementById("level-complete").classList.remove("hidden");
+    showBombBlast();
+    showPaperCutsRain();
+    showStars();
+  }
+}
+
+// Function to show bomb blast animation
+function showBombBlast() {
+  const bombBlast = document.getElementById("bomb-blast");
+  bombBlast.classList.remove("hidden");
+  setTimeout(() => {
+    bombBlast.classList.add("hidden");
+  }, 1000); // Hide after 1 second
+}
+
+// Function to show paper cuts rain animation
+function showPaperCutsRain() {
+  const paperCutsRain = document.getElementById("paper-cuts-rain");
+  paperCutsRain.classList.remove("hidden");
+
+  // Create paper cuts
+  for (let i = 0; i < 50; i++) {
+    const paperCut = document.createElement("div");
+    paperCut.classList.add("paper-cut");
+    paperCut.style.left = `${Math.random() * 100}%`;
+    paperCut.style.animationDuration = `${Math.random() * 2 + 1}s`;
+    paperCutsRain.appendChild(paperCut);
+  }
+
+  // Remove paper cuts after animation
+  setTimeout(() => {
+    paperCutsRain.classList.add("hidden");
+    paperCutsRain.innerHTML = "";
+  }, 3000); // Hide after 3 seconds
+}
+
+// Function to show stars based on correct answers
+function showStars() {
+  const starsContainer = document.getElementById("stars-container");
+  const stars = document.querySelectorAll(".star");
+  starsContainer.classList.remove("hidden");
+
+  // Calculate stars based on correct answers
+  const starCount = Math.floor((correctAnswers / 10) * 3); // Max 3 stars
+  stars.forEach((star, index) => {
+    if (index < starCount) {
+      star.style.display = "inline-block";
+    } else {
+      star.style.display = "none";
+    }
+  });
+}
+
+// Function to reset the game
+function resetGame() {
+  puzzlesSolved = 0;
+  correctAnswers = 0;
+  document.getElementById("level-1").classList.remove("hidden");
+  document.getElementById("level-complete").classList.add("hidden");
+  document.getElementById("stars-container").classList.add("hidden");
+  selectQuestions(); // Select new questions for the next round
+}
+
+// Initialize the game
+selectQuestions();
+
+//back button
+function goToPage(page) {
+    window.location.href = page;
+  }
+  </script>
+<button onclick="goToPage('/')">Back</button>
+</body>
+</html>

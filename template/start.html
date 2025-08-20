@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Questions</title>
+        <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .option {
+            margin: 5px 0;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .progress {
+            height: 20px;
+            background-color: #4CAF50;
+            width: 0%;
+            text-align: center;
+            color: white;
+            line-height: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Generated MCQs</h1>
+    <form id="quiz-form">
+        {% if mcq_response %}
+            {% set questions = mcq_response.split('\n\n') %}
+            {% for question in questions %}
+                {% set lines = question.split('\n') %}
+                <div class="question">
+                    {{ lines[0] }} <!-- Display the question -->
+                </div>
+                <div class="options">
+                    {% for option in lines[1:] %}
+                        {% if option %}
+                            <!-- Remove the "(Correct)" marker from the displayed text -->
+                            {% set option_text = option.replace("(Correct)", "") %}
+                            <label>
+                                <input type="checkbox" name="q{{ loop.index0 }}" value="{{ option }}">
+                                {{ option_text }}
+                            </label><br>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <hr>
+            {% endfor %}
+            <button type="button" onclick="checkAnswers()">Submit</button>
+        {% else %}
+            <p>No MCQs generated yet. Please generate MCQs first.</p>
+        {% endif %}
+    </form>
+
+    <div class="progress-bar">
+        <div id="progress" class="progress">0%</div>
+    </div>
+</div>
+
+<script>
+    // Alert message when the page loads
+    window.onload = function() {
+        alert("Please select only one option per question to generate proper progress.");
+    };
+
+    function checkAnswers() {
+        let correctCount = 0;
+        let totalQuestions = document.querySelectorAll(".question").length;
+        let selectedOptions = document.querySelectorAll("input[type='checkbox']:checked");
+
+        if (selectedOptions.length === 0) {
+            alert("Please answer at least one question!");
+            return;
+        }
+
+        // Reset all labels to default styling
+        document.querySelectorAll("label").forEach((label) => {
+            label.classList.remove("correct", "incorrect");
+        });
+
+        // Check each selected option
+        selectedOptions.forEach((option) => {
+            let isCorrect = option.value.includes("(Correct)"); // Check if the option is correct
+            let parent = option.parentElement; // Get the parent label
+
+            if (isCorrect) {
+                parent.classList.add("correct");
+                correctCount++;
+            } else {
+                parent.classList.add("incorrect");
+            }
+        });
+
+        // Update progress bar
+        let progress = Math.round((correctCount / totalQuestions) * 100);
+        document.getElementById("progress").style.width = progress + "%";
+        document.getElementById("progress").innerText = progress + "%";
+
+        alert(`You got ${correctCount} out of ${totalQuestions} correct!`);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Download Button</title>
+        <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #0F1117;
+    min-height: 100vh;
+    color: white;
+    overflow: hidden;
+}
+
+.container {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background Styles */
+.background {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(to right, rgba(99,102,241,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(99,102,241,0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.03;
+}
+
+.orbs {
+    position: absolute;
+    inset: -10px;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    animation: float-slow 20s ease-in-out infinite;
+}
+
+.gradient-highlight {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+    filter: blur(100px);
+}
+
+.gradient-highlight.top {
+    top: 0;
+    left: 25%;
+    background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+}
+
+.gradient-highlight.bottom {
+    bottom: 0;
+    right: 25%;
+    background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+}
+
+/* Content Styles */
+.content {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 5vw, 3rem);
+    font-weight: bold;
+    margin-bottom: 2rem;
+    text-align: center;
+    background: linear-gradient(to right, #E0E7FF, #A5B4FC);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.download-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(to right, #4F46E5, #4338CA);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.download-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(99,102,241,0.3);
+}
+
+.download-button:disabled {
+    opacity: 0.8;
+    transform: scale(1);
+    cursor: default;
+}
+
+.button-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.download-icon {
+    transition: transform 0.3s ease;
+}
+
+.download-button:hover .download-icon {
+    transform: translateY(-4px);
+}
+
+.progress-bar {
+    position: absolute;
+    inset: 0;
+    background: #4F46E5;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+p {
+    margin-top: 2rem;
+    text-align: center;
+    max-width: 28rem;
+    color: rgba(224,231,255,0.6);
+}
+
+@keyframes float-slow {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    25% {
+        transform: translate(10px, -10px) scale(1.05);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translate(0, -20px) scale(1.1);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translate(-10px, -10px) scale(1.05);
+        opacity: 0.8;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Animated background patterns -->
+        <div class="background">
+            <!-- Grid pattern -->
+            <div class="grid-pattern"></div>
+            
+            <!-- Animated orbs -->
+            <div class="orbs" id="orbs"></div>
+
+            <!-- Gradient highlights -->
+            <div class="gradient-highlight top"></div>
+            <div class="gradient-highlight bottom"></div>
+        </div>
+
+        <!-- Main content -->
+        <div class="content">
+            <h1>Download Now</h1>
+            
+            <a id="downloadBtn" href="{{ url_for('static', filename='user_audio.wav') }}" download="user_audio.wav" class="download-button">
+                <div class="progress-bar" id="progressBar"></div>
+                <span class="button-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="download-icon">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span id="buttonText">Download</span>
+                </span>
+            </a>
+            <p>Click the 'Download' button to save the audio file to your device and listen anytime, anywhere.</p>
+        </div>
+    </div>
+    <script>
+        // Create animated orbs
+function createOrbs() {
+    const orbsContainer = document.getElementById('orbs');
+    const numberOfOrbs = 15;
+
+    for (let i = 0; i < numberOfOrbs; i++) {
+        const orb = document.createElement('div');
+        orb.className = 'orb';
+        
+        // Random positioning and sizing
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const size = Math.random() * 400 + 200;
+        const delay = Math.random() * 10;
+
+        Object.assign(orb.style, {
+            left: `${left}%`,
+            top: `${top}%`,
+            width: `${size}px`,
+            height: `${size}px`,
+            background: 'radial-gradient(circle, rgba(99,102,241,0.03) 0%, rgba(99,102,241,0) 70%)',
+            animationDelay: `${delay}s`
+        });
+
+        orbsContainer.appendChild(orb);
+    }
+}
+
+// Handle download button click
+function handleDownload() {
+    const button = document.getElementById('downloadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const buttonText = document.getElementById('buttonText');
+    const icon = document.querySelector('.download-icon');
+
+    if (button.disabled) return;
+
+    button.disabled = true;
+    let progress = 0;
+
+    // Simulate download progress
+    const interval = setInterval(() => {
+        progress += 2;
+        progressBar.style.transform = `scaleX(${progress / 100})`;
+        buttonText.textContent = `${progress}%`;
+        icon.style.transform = 'translateY(4px)';
+
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                button.disabled = false;
+                progressBar.style.transform = 'scaleX(0)';
+                buttonText.textContent = 'Download';
+                icon.style.transform = '';
+            }, 500);
+        }
+    }, 50);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    createOrbs();
+    document.getElementById('downloadBtn').addEventListener('click', handleDownload);
+});
+    </script>
+</body>
+</html>

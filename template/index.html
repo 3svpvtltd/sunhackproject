@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduZen - Fun Learning for Kids</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='eduzen.png') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+
+    <!-- Loader Container -->
+  <iframe id="loader-frame" src="/loader" style="border: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; z-index: 9999;"></iframe>
+  
+  <script>
+    // Wait until the loader is visible for a few seconds, then show the main content
+    window.onload = function() {
+        setTimeout(() => {
+            document.getElementById("loader-frame").style.display = "none"; // Hide loader
+            document.getElementById("content").style.display = "block"; // Show website content
+        }, 4000); // Adjust time as needed (5 seconds)
+    };
+</script>
+
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🎓EduZen</h1>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link ">Home</a>
+                <a href="/text" class="nav-link" style="text-decoration: none;">Learn</a>
+                <a href="#games" class="nav-link">Games</a>
+                
+                 <a href="#about" class="nav-link">About</a>
+                  <a href="#contact" class="nav-link">Contact</a>
+                
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h2>Welcome to Your Learning Adventure!</h2>
+                    <p>Learn, Play, and Grow with EduZen's fun educational games and videos</p>
+                    <a href="/text" class="cta-button" style="text-decoration: none;">Knowledge Buddy!</a>
+                    <a href="https://unrivaled-taffy-ae8f7c.netlify.app/" class="cta-button" style="text-decoration: none;">EduTalk!</a>
+                     <a href="https://www.leetlabs.in/" class="cta-button" style="text-decoration: none;">CodeCrack!</a>
+              
+                </div>
+                <div class="hero-image">
+    <img src="{{ url_for('static', filename='eduzen.png') }}" alt="Logo" class="floating-logo">
+
+</div>
+
+<style>
+.hero-image {
+    position: relative;
+    width: 100%;
+    height: 300px; /* adjust as needed */
+
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-logo {
+    width: 700px; /* adjust size */
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(15px, -10px); }
+    50%  { transform: translate(0, -20px); }
+    75%  { transform: translate(-15px, -10px); }
+    100% { transform: translate(0, 0); }
+}
+</style>
+
+            </div>
+
+        <!-- Featured Games Section on Home -->
+<section class="home-games" id="games">
+    <div class="section-header">
+        <h2>🎮 Featured Learning Games</h2>
+        <p>Play fun games while you learn new skills!</p>
+    </div>
+
+    <!-- Only ONE featured-games-grid wrapper -->
+    <div class="featured-games-grid">
+        
+        <!-- Game 1 -->
+        <div class="featured-game-card" data-game="quiz">
+            <div class="game-preview">
+                <img src="{{ url_for('static', filename='adv.jpg') }}" alt="Game Preview">
+                <div class="game-icon-large"></div>
+                <div class="game-overlay">
+                    <a href="{{ url_for('game1') }}" class="play-game-btn">
+                        <i data-lucide="play"></i> Play Now
+                    </a>
+                </div>
+            </div>
+            <div class="game-details">
+                <h3>Quiz Master</h3>
+                <p>Test your knowledge with fun quizzes across all subjects!</p>
+                <div class="game-meta">
+                    <span class="difficulty easy">🟢 Easy</span>
+                    <span class="players">👥 Single Player</span>
+                </div>
+                <div class="game-stats-mini">
+                    <span>🏆 Best Score: 85%</span>
+                    <span>⚡ Avg Time: 5 min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 2 -->
+        <div class="featured-game-card" data-game="quiz">
+            <div class="game-preview">
+                <img src="{{ url_for('static', filename='adv.jpg') }}" alt="Game Preview">
+                <div class="game-icon-large">❓</div>
+                <div class="game-overlay">
+                    <a href="{{ url_for('game2') }}" class="play-game-btn">
+                        <i data-lucide="play"></i> Play Now
+                    </a>
+                </div>
+            </div>
+            <div class="game-details">
+                <h3>Quiz Master</h3>
+                <p>Test your knowledge with fun quizzes across all subjects!</p>
+                <div class="game-meta">
+                    <span class="difficulty easy">🟢 Easy</span>
+                    <span class="players">👥 Single Player</span>
+                </div>
+                <div class="game-stats-mini">
+                    <span>🏆 Best Score: 85%</span>
+                    <span>⚡ Avg Time: 5 min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 3 -->
+        <div class="featured-game-card" data-game="quiz">
+            <div class="game-preview">
+                <img src="{{ url_for('static', filename='adv.jpg') }}" alt="Game Preview">
+                <div class="game-icon-large">❓</div>
+                <div class="game-overlay">
+                    <a href="{{ url_for('game3') }}" class="play-game-btn">
+                        <i data-lucide="play"></i> Play Now
+                    </a>
+                </div>
+            </div>
+            <div class="game-details">
+                <h3>Quiz Master</h3>
+                <p>Test your knowledge with fun quizzes across all subjects!</p>
+                <div class="game-meta">
+                    <span class="difficulty easy">🟢 Easy</span>
+                    <span class="players">👥 Single Player</span>
+                </div>
+                <div class="game-stats-mini">
+                    <span>🏆 Best Score: 85%</span>
+                    <span>⚡ Avg Time: 5 min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 4 -->
+        <div class="featured-game-card" data-game="quiz">
+            <div class="game-preview">
+                <img src="{{ url_for('static', filename='adv.jpg') }}" alt="Game Preview">
+                <div class="game-icon-large">❓</div>
+                <div class="game-overlay">
+                    <a href="{{ url_for('game4') }}" class="play-game-btn">
+                        <i data-lucide="play"></i> Play Now
+                    </a>
+                </div>
+            </div>
+            <div class="game-details">
+                <h3>Quiz Master</h3>
+                <p>Test your knowledge with fun quizzes across all subjects!</p>
+                <div class="game-meta">
+                    <span class="difficulty easy">🟢 Easy</span>
+                    <span class="players">👥 Single Player</span>
+                </div>
+                <div class="game-stats-mini">
+                    <span>🏆 Best Score: 85%</span>
+                    <span>⚡ Avg Time: 5 min</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+        
+
+        
+          <!-- About Section on Home -->
+        <section class="home-about" id="about">
+            <div class="section-header">
+                <h2>Why Choose EduZen?</h2>
+                <p>Making learning an adventure for young minds</p>
+            </div>
+            
+            <div class="about-features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Learn Through Play</h3>
+                    <p>Educational games that make learning fun and engaging for children aged 6-12</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📹</div>
+                    <h3>Interactive Videos</h3>
+                    <p>High-quality educational videos designed specifically for young learners</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Reward System</h3>
+                    <p>Earn points, badges, and achievements to stay motivated and track progress</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Learn anywhere, anytime with our responsive design that works on all devices</p>
+                </div>
+            </div>
+
+            <div class="stats-showcase">
+                <div class="stat-showcase">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-text">Happy Students</div>
+                </div>
+                <div class="stat-showcase">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-text">Learning Activities</div>
+                </div>
+                <div class="stat-showcase">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-text">Educational Videos</div>
+                </div>
+                <div class="stat-showcase">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-text">Parent Satisfaction</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Contact Section on Home -->
+        <section class="home-contact" id="contact">
+            <div class="contact-container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h2>Ready to Start Learning?</h2>
+                        <p>Join thousands of students already learning with EduZen!</p>
+                        
+                        <div class="contact-features">
+                            <div class="contact-feature">
+                                <span class="feature-check">✅</span>
+                                <span>Safe and secure learning environment</span>
+                            </div>
+                            <div class="contact-feature">
+                                <span class="feature-check">✅</span>
+                                <span>Age-appropriate content for 6-12 years</span>
+                            </div>
+                            <div class="contact-feature">
+                                <span class="feature-check">✅</span>
+                                <span>Progress tracking for parents</span>
+                            </div>
+                            <div class="contact-feature">
+                                <span class="feature-check">✅</span>
+                                <span>24/7 customer support</span>
+                            </div>
+                        </div>
+
+                        <div class="contact-buttons">
+                            <button class="primary-btn" onclick="showSection('learn')">
+                                <span>Start Learning Now</span>
+                                <span class="btn-icon">🚀</span>
+                            </button>
+                            <button class="secondary-btn" onclick="showSection('contact')">
+                                <span>Contact Us</span>
+                                <span class="btn-icon">💬</span>
+                            </button>
+                        </div>
+                    </div>
+
+<div class="contact-form-mini">
+    <h3>Quick Contact</h3>
+    <form class="mini-form" id="quickContactForm" action="/getdata" method="POST">
+    <input type="text" name="parent_name" placeholder="Parent's Name" required>
+    <input type="email" name="email" placeholder="Email Address" required>
+    <input type="number" name="child_age" placeholder="Child's Age" required>
+
+    <select name="interest" required>
+        <option value="">Select Interest</option>
+        <option value="math">Math</option>
+        <option value="science">Science</option>
+        <option value="english">English</option>
+        <option value="art">Art</option>
+        <option value="all">All Subjects</option>
+    </select>
+
+    <textarea name="message" placeholder="Any questions or special requirements?" rows="3"></textarea>
+
+    <button type="submit" class="form-submit-btn">
+        <span>Get Started</span>
+        <span class="submit-icon">📤</span>
+    </button>
+</form>
+
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+       
+
+           
+
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="section-header">
+                <h2>About EduZen</h2>
+                <p>Making learning fun and engaging for young minds</p>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-hero">
+                    <div class="about-text">
+                        <h3>🌟 Our Mission</h3>
+                        <p>At EduZen, we believe that learning should be an adventure, not a chore. Our platform is designed specifically for children aged 6-12 years, combining education with gamification to create an engaging and effective learning experience.</p>
+                        
+                        <h3>🎯 What We Offer</h3>
+                        <ul class="feature-list">
+                            <li>📚 Interactive lessons across multiple subjects</li>
+                            <li>🎮 Educational games that make learning fun</li>
+                            <li>📹 Engaging video content from expert educators</li>
+                            <li>🏆 Achievement system with badges and rewards</li>
+                            <li>📊 Progress tracking for parents and teachers</li>
+                            <li>📱 Mobile-friendly design for learning anywhere</li>
+                        </ul>
+                    </div>
+                    <div class="about-image">
+                        <div class="about-illustration">
+                            <div class="illustration-item">👨‍🏫</div>
+                            <div class="illustration-item">👩‍🎓</div>
+                            <div class="illustration-item">📚</div>
+                            <div class="illustration-item">🎨</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="values-section">
+                    <h3>💡 Our Core Values</h3>
+                    <div class="values-grid">
+                        <div class="value-card">
+                            <div class="value-icon">🎯</div>
+                            <h4>Focused Learning</h4>
+                            <p>Age-appropriate content designed specifically for young learners</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="value-icon">🎉</div>
+                            <h4>Fun First</h4>
+                            <p>Making education enjoyable through games and interactive content</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="value-icon">🌱</div>
+                            <h4>Growth Mindset</h4>
+                            <p>Encouraging curiosity and continuous learning in every child</p>
+                        </div>
+                        <div class="value-card">
+                            <div class="value-icon">🤝</div>
+                            <h4>Safe Environment</h4>
+                            <p>A secure and supportive platform for children to explore and learn</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-section">
+                    <h3>👥 Meet Our Team</h3>
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="member-avatar">👨‍💼</div>
+                            <h4>Alex Johnson</h4>
+                            <p>Founder & CEO</p>
+                            <span>Education Technology Expert</span>
+                        </div>
+                        <div class="team-member">
+                            <div class="member-avatar">👩‍🏫</div>
+                            <h4>Sarah Davis</h4>
+                            <p>Head of Education</p>
+                            <span>Child Psychology Specialist</span>
+                        </div>
+                        <div class="team-member">
+                            <div class="member-avatar">👨‍💻</div>
+                            <h4>Mike Chen</h4>
+                            <p>Lead Developer</p>
+                            <span>Interactive Learning Expert</span>
+                        </div>
+                        <div class="team-member">
+                            <div class="member-avatar">👩‍🎨</div>
+                            <h4>Emma Wilson</h4>
+                            <p>Creative Director</p>
+                            <span>Child-Friendly Design Specialist</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <div class="section-header">
+                <h2>Get in Touch</h2>
+                <p>We'd love to hear from you! Reach out with any questions or feedback</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">📧</div>
+                        <h3>Email Us</h3>
+                        <p>hello@eduzen.com</p>
+                        <p>support@eduzen.com</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">📞</div>
+                        <h3>Call Us</h3>
+                        <p>+1 (555) 123-4567</p>
+                        <p>Mon-Fri: 9AM-6PM EST</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">📍</div>
+                        <h3>Visit Us</h3>
+                        <p>123 Learning Street</p>
+                        <p>Education City, EC 12345</p>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">💬</div>
+                        <h3>Social Media</h3>
+                        <p>@EduZenLearning</p>
+                        <p>Follow us for updates!</p>
+                    </div>
+                </div>
+
+                <div class="contact-form-container">
+                    <form class="contact-form" id="contactForm">
+                        <h3>Send us a Message</h3>
+                        
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Choose a topic...</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="support">Technical Support</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" rows="5" required placeholder="Tell us how we can help you..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <span>Send Message</span>
+                            <div class="btn-icon">📤</div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="faq-section">
+                <h3>Frequently Asked Questions</h3>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h4>Is EduZen suitable for my child's age?</h4>
+                        <p>EduZen is specifically designed for children aged 6-12 years, with content tailored to different grade levels and learning abilities.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>How do I track my child's progress?</h4>
+                        <p>Parents can access detailed progress reports through the profile section, showing completed lessons, earned badges, and learning achievements.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Is the platform safe for children?</h4>
+                        <p>Yes! EduZen prioritizes child safety with secure content, no external links, and a monitored learning environment.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Can my child use EduZen on mobile devices?</h4>
+                        <p>Absolutely! EduZen is fully responsive and works seamlessly on tablets, smartphones, and desktop computers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+ 
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
